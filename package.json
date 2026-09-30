@@ -1,0 +1,17 @@
+{
+  "name": "auditmind",
+  "version": "1.0.0",
+  "description": "AuditMind Compliance & Audit Agent with Hindsight Memory Integration",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "node scripts/test_hindsight.js"
+  },
+  "dependencies": {
+    "@vectorize-io/hindsight-client": "^0.10.1",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1"
+  }
+}

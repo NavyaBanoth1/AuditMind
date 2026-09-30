@@ -1,0 +1,35 @@
+[
+  {
+    "ticket_id": "SEC-882",
+    "finding_id": "AUD-305",
+    "summary": "Upgrade Kubernetes Production Node Pool OS from EOL Ubuntu 18.04 to Ubuntu 22.04 LTS",
+    "reporter": "Marcus Vance (Auditor)",
+    "assignee": "Alex Rivera",
+    "status": "Done",
+    "resolution": "Fixed",
+    "updated_at": "2025-03-02T11:14:00Z",
+    "description": "Upgrade production node pools to eliminate EOL OS vulnerabilities noted during AUD-305.",
+    "comments": [
+      {
+        "author": "Alex Rivera",
+        "date": "2025-03-02T11:12:00Z",
+        "body": "Completed node pool upgrade in production."
+      }
+    ],
+    "attachments": [],
+    "evidence_attached": false,
+    "trap_type": "Fake Fix Trap",
+    "explanation": "Ticket marked 'Done' with a single text comment 'Completed node pool upgrade' but zero attachments, node pool terraform plans, or kubectl get node logs attached."
+  },
+  {
+    "ticket_id": "IAM-402-TICKET",
+    "finding_id": "AUD-402",
+    "summary": "Implement Time-Bound Expiry and Break-Glass Logging for IAM Admin Accounts",
+    "reporter": "Marcus Vance (Auditor)",
+    "assignee": "Alex Rivera",
+    "status": "In Progress",
+    "due_date": "2025-02-10",
+    "trap_type": "Overdue High Risk Item",
+    "explanation": "High severity finding AUD-402 was due on Feb 10, 2025 and remains open over 45 days past deadline."
+  }
+]

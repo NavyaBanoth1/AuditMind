@@ -1,0 +1,9 @@
+{
+  "NOTICE": "SYNTHETIC DEMO MATERIAL ONLY - NOT REAL LEGAL ADVICE OR ACTUAL REGULATORY TEXT",
+  "document_title": "Digital Personal Data Protection (DPDP) Act - Fictional Retention Amendment 2025",
+  "document_id": "REG-DPDP-AMEND-2025-04",
+  "effective_date": "2025-03-01",
+  "fictional_regulation_name": "Digital Personal Data Protection Act (India) - Section 8 Clause 7 Amendment",
+  "clause_text": "Data Fiduciaries must erase personal data upon withdrawal of consent or when the specified purpose of collection is no longer served. Under Amendment 2025-04, personal data retention for inactive or offboarded user accounts must not exceed 180 days, unless longer retention is explicitly mandated by financial statutory obligations. Data Fiduciaries must produce verifiable audit logs confirming complete erasure across primary datastores, replica clusters, and cold backup snapshots within 30 days of the retention threshold.",
+  "impact_summary": "Companies handling Indian user data must enforce automated data purging within 180 days and maintain cryptographic/audit proof of backup deletion."
+}

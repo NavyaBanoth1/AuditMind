@@ -1,0 +1,42 @@
+{
+  "eventVersion": "1.08",
+  "userIdentity": {
+    "type": "IAMUser",
+    "principalId": "AIDAEXAMPLE123456789",
+    "arn": "arn:aws:iam::123456789012:user/alex.rivera",
+    "accountId": "123456789012",
+    "userName": "alex.rivera"
+  },
+  "eventTime": "2025-03-14T08:23:41Z",
+  "eventSource": "rds.amazonaws.com",
+  "eventName": "CreateDBSnapshot",
+  "awsRegion": "us-east-1",
+  "sourceIPAddress": "198.51.100.42",
+  "userAgent": "aws-cli/2.15.0 Python/3.11.6 Linux/6.1.0-18-amd64 prompt/main",
+  "requestParameters": {
+    "dBSnapshotIdentifier": "acme-prod-db-manual-snap-20250314",
+    "dBInstanceIdentifier": "acme-production-postgres-db",
+    "tags": [
+      {
+        "key": "Environment",
+        "value": "Production"
+      },
+      {
+        "key": "CreatedBy",
+        "value": "Alex Rivera"
+      }
+    ]
+  },
+  "responseElements": {
+    "dBSnapshotIdentifier": "acme-prod-db-manual-snap-20250314",
+    "dBInstanceIdentifier": "acme-production-postgres-db",
+    "engine": "postgres",
+    "allocatedStorage": 500,
+    "status": "creating",
+    "snapshotType": "manual",
+    "encrypted": false,
+    "masterUsername": "postgres_admin"
+  },
+  "log_reference_id": "8839",
+  "trap_flag": "Contradiction Trap - Unencrypted snapshot created despite POL-101 v3 section 4.1 requiring 100% encryption."
+}

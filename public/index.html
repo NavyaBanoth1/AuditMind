@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuditMind - Enterprise Compliance & Audit Agent</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b',
+                        darkBorder: '#334155',
+                        accentBlue: '#38bdf8',
+                        accentPurple: '#a855f7',
+                        accentGreen: '#22c55e',
+                        accentRed: '#ef4444',
+                        accentYellow: '#eab308'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+        .tab-active { border-bottom: 2px solid #38bdf8; color: #38bdf8; font-weight: 600; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER BAR -->
+    <header class="bg-darkCard border-b border-darkBorder px-6 py-3 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-r from-cyan-500 to-blue-600 p-2 rounded-lg text-white font-bold text-xl">🛡️</div>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">AuditMind</h1>
+                <p class="text-xs text-slate-400">Enterprise ISO 27001 / SOC 2 Compliance Memory Agent</p>
+            </div>
+        </div>
+
+        <!-- Tenant Switcher & Controls -->
+        <div class="flex items-center flex-wrap gap-3">
+            <!-- Enterprise Tenant Switcher -->
+            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-darkBorder">
+                <span class="text-xs font-semibold text-slate-400">Tenant:</span>
+                <select id="tenantSelect" onchange="handleTenantChange()" class="bg-transparent text-sm font-bold text-sky-400 focus:outline-none cursor-pointer">
+                    <option value="tenant-acme-audit" selected>🏢 ACME Corp (tenant-acme-audit)</option>
+                    <option value="tenant-stark-audit">⚡ Stark Industries (tenant-stark-audit)</option>
+                </select>
+            </div>
+
+            <!-- Memory Pulse Badge -->
+            <div id="pulseBadge" class="flex items-center gap-1.5 bg-slate-900 px-3 py-1.5 rounded-lg border border-darkBorder text-xs font-mono">
+                <span id="pulseIcon">⚪</span>
+                <span id="pulseText" class="text-slate-300">Standby</span>
+            </div>
+
+            <!-- Date Slider (Temporal Filter) -->
+            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-darkBorder text-xs">
+                <span class="text-slate-400 font-semibold">Date Filter:</span>
+                <input type="date" id="dateFilterInput" value="2025-03-15" onchange="handleDateFilterChange()" class="bg-slate-800 text-slate-200 px-2 py-0.5 rounded focus:outline-none border border-slate-700">
+            </div>
+
+            <!-- Memory ON / OFF Toggle -->
+            <div class="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-darkBorder text-xs">
+                <span class="text-slate-400 font-semibold">Memory:</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="memoryToggleInput" checked onchange="handleToggleChange()" class="sr-only peer">
+                    <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+                <span id="toggleLabel" class="text-sky-400 font-bold">ON</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- DEMO / TESTING CONTROLS BAR -->
+    <div class="bg-slate-900/80 border-b border-darkBorder px-6 py-2 flex items-center justify-between gap-4 text-xs">
+        <span class="font-bold text-amber-400 flex items-center gap-1.5">
+            ⚡ Demo / Testing Controls Bar:
+        </span>
+        <div class="flex items-center gap-2">
+            <button onclick="triggerDemoAction('contradiction')" class="bg-rose-900/40 hover:bg-rose-800/60 text-rose-300 border border-rose-700/50 px-3 py-1 rounded font-semibold transition">
+                💥 Inject Contradiction
+            </button>
+            <button onclick="triggerDemoAction('aud-402')" class="bg-amber-900/40 hover:bg-amber-800/60 text-amber-300 border border-amber-700/50 px-3 py-1 rounded font-semibold transition">
+                ⏰ Trigger #AUD-402 Overdue
+            </button>
+            <button onclick="triggerDemoAction('dpdp-amendment')" class="bg-cyan-900/40 hover:bg-cyan-800/60 text-cyan-300 border border-cyan-700/50 px-3 py-1 rounded font-semibold transition">
+                📜 Upload DPDP Amendment
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT AREA -->
+    <div class="flex-1 flex flex-col">
+        <!-- NAVIGATION SCREEN TABS -->
+        <nav class="bg-darkCard/50 border-b border-darkBorder px-6 flex gap-8 text-sm">
+            <button onclick="switchScreen(1)" id="tabScreen1" class="py-3 tab-active transition">Screen 1: Mission Control</button>
+            <button onclick="switchScreen(2)" id="tabScreen2" class="py-3 text-slate-400 hover:text-slate-200 transition">Screen 2: Regulation Impact & Chat</button>
+            <button onclick="switchScreen(3)" id="tabScreen3" class="py-3 text-slate-400 hover:text-slate-200 transition">Screen 3: Mock Audit Rehearsal</button>
+            <button onclick="switchScreen(4)" id="tabScreen4" class="py-3 text-slate-400 hover:text-slate-200 transition">Screen 4: Hindsight Memory Inspector</button>
+        </nav>
+
+        <!-- SCREEN CONTAINER -->
+        <main class="flex-1 p-6 space-y-6">
+
+            <!-- SCREEN 1: MISSION CONTROL -->
+            <div id="screen1" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Readiness Score & Breakdown -->
+                    <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
+                                📊 Audit Readiness Score
+                            </h2>
+                            <button onclick="exportAuditEvidencePackage()" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-400 border border-emerald-500/50 text-xs px-3 py-1 rounded font-bold transition">
+                                📥 Export Package (.JSON)
+                            </button>
+                        </div>
+                        <div class="flex items-baseline gap-3">
+                            <span id="readinessScoreVal" class="text-4xl font-extrabold text-emerald-400">82.7</span>
+                            <span class="text-xs text-slate-400">/ 100 Target Cert Readiness</span>
+                        </div>
+                        <!-- Score Formula Breakdown -->
+                        <div class="space-y-2 text-xs border-t border-darkBorder pt-3">
+                            <div class="flex justify-between text-slate-300">
+                                <span>Evidence Completeness (30%):</span>
+                                <span class="font-mono font-bold text-sky-400" id="scoreEvidence">85.0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Remediation Status (25%):</span>
+                                <span class="font-mono font-bold text-sky-400" id="scoreRemediation">78.0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Prediction Accuracy (20%):</span>
+                                <span class="font-mono font-bold text-sky-400" id="scorePrediction">92.0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Mock Audit Performance (15%):</span>
+                                <span class="font-mono font-bold text-sky-400" id="scoreMock">82.0</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Recurring Risk Resolution (10%):</span>
+                                <span class="font-mono font-bold text-sky-400" id="scoreRisk">70.0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Event Loop Feed -->
+                    <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-3 lg:col-span-2">
+                        <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
+                            🔄 Live Autonomous Event Loop Feed
+                        </h2>
+                        <div id="eventFeedList" class="space-y-2 max-h-64 overflow-y-auto pr-1 text-xs">
+                            <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800 flex justify-between items-start">
+                                <div>
+                                    <span class="font-bold text-sky-400">[AWS CloudTrail]</span>
+                                    <p class="text-slate-300 mt-1">User alex.rivera created RDS manual snapshot acme-prod-db-manual-snap-20250314 with encrypted=false.</p>
+                                </div>
+                                <span class="bg-rose-900/40 text-rose-300 text-[10px] px-2 py-0.5 rounded font-bold border border-rose-700/50">HIGH RISK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Human Approvals Queue -->
+                <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4">
+                    <h2 class="text-base font-bold text-slate-200 flex items-center gap-2">
+                        ⏳ Human-in-the-Loop Approvals Queue
+                    </h2>
+                    <div id="approvalsList" class="space-y-3">
+                        <div class="bg-slate-900/80 p-4 rounded-lg border border-slate-800 text-xs text-slate-400">
+                            No pending approvals in queue for active tenant.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 2: REGULATION IMPACT & CHAT -->
+            <div id="screen2" class="hidden space-y-6">
+                <!-- Dropzone & Regulation Input -->
+                <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4">
+                    <h2 class="text-base font-bold text-slate-200">📥 Live Regulatory Ingestion & Drag-and-Drop Dropzone</h2>
+                    <div class="border-2 border-dashed border-slate-700 hover:border-sky-500/50 rounded-xl p-6 text-center cursor-pointer bg-slate-900/40 transition" onclick="triggerIngestDemo()">
+                        <div class="text-2xl mb-1">📄</div>
+                        <p class="text-xs text-slate-300 font-semibold">Drop Regulatory PDF, TXT, JSON, or LOG file here</p>
+                        <p class="text-[10px] text-slate-500 mt-1">Triggers immediate retain() into active tenant bank_id</p>
+                    </div>
+                </div>
+
+                <!-- Side-by-Side Comparison Output -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left: Base LLM (Memory OFF) -->
+                    <div class="bg-darkCard border border-slate-700/50 rounded-xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-700/50 pb-2">
+                            <h3 class="text-sm font-bold text-slate-400">Left: Base Model (Memory OFF)</h3>
+                            <span class="bg-slate-800 text-slate-400 text-[10px] px-2 py-0.5 rounded font-mono">No Hindsight</span>
+                        </div>
+                        <p id="compLeftSummary" class="text-xs text-slate-300 leading-relaxed">Generic security advice: All cloud databases should use standard encryption at rest where feasible.</p>
+                        <div class="text-[11px] text-slate-500 italic">No specific policy citations or planted trap detection available.</div>
+                    </div>
+
+                    <!-- Right: AuditMind Agent (Memory ON) -->
+                    <div class="bg-darkCard border border-sky-500/40 rounded-xl p-5 space-y-3">
+                        <div class="flex items-center justify-between border-b border-sky-500/30 pb-2">
+                            <h3 class="text-sm font-bold text-sky-400">Right: AuditMind Agent (Memory ON)</h3>
+                            <span id="compCitationBadge" class="bg-emerald-900/40 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-bold border border-emerald-700/50">🟢 Verified Grounding</span>
+                        </div>
+                        <p id="compRightSummary" class="text-xs text-slate-200 leading-relaxed">AuditMind Agent Analysis: POL-101 v3 Section 4.1 mandates 100% database snapshot encryption across all environments without exception. However, AWS CloudTrail Log #8839 records unencrypted RDS snapshot creation on March 14, 2025, creating a direct policy violation (AUD-308).</p>
+                        
+                        <!-- Multi-Framework Cross-Mapping Table -->
+                        <div class="border-t border-slate-700/50 pt-3 space-y-2">
+                            <h4 class="text-xs font-bold text-slate-300">Multi-Framework Cross-Mapping Breakdown:</h4>
+                            <div class="grid grid-cols-2 gap-2 text-[11px]">
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">ISO 27001:</span> A.8.24 (Cryptography)</div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">SOC 2:</span> CC6.6 (Encryption)</div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">GDPR:</span> Article 32(1)(a)</div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">DPDP Act:</span> Section 8(4)</div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">HIPAA:</span> 164.312(a)(2)(iv)</div>
+                                <div class="bg-slate-900 p-2 rounded border border-slate-800"><span class="text-sky-400 font-bold">PCI-DSS:</span> Requirement 3.4</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: MOCK AUDIT REHEARSAL -->
+            <div id="screen3" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Persona Selector & Radar Chart -->
+                    <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4">
+                        <h2 class="text-base font-bold text-slate-200">🎯 Auditor Persona Selector</h2>
+                        <select id="personaSelect" onchange="switchPersona()" class="w-full bg-slate-900 border border-slate-700 text-xs font-bold text-sky-400 p-2.5 rounded-lg focus:outline-none">
+                            <option value="strict_technical_examiner" selected>🔍 Strict Technical Examiner (Marcus Vance)</option>
+                            <option value="process_policy_specialist">📋 Process & Policy Specialist</option>
+                        </select>
+
+                        <!-- Auditor Behavior Radar Chart -->
+                        <div class="space-y-2 border-t border-darkBorder pt-4">
+                            <h3 class="text-xs font-bold text-slate-300">Auditor Strictness Radar Breakdown:</h3>
+                            <div id="radarMetrics" class="space-y-2 text-xs">
+                                <div>
+                                    <div class="flex justify-between text-slate-400"><span>IAM Access Control:</span><span class="text-sky-400 font-bold">85%</span></div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-1"><div class="bg-sky-400 h-1.5 rounded-full" style="width: 85%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400"><span>Database Encryption:</span><span class="text-sky-400 font-bold">95%</span></div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-1"><div class="bg-sky-400 h-1.5 rounded-full" style="width: 95%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400"><span>Policy Compliance:</span><span class="text-sky-400 font-bold">60%</span></div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-1"><div class="bg-sky-400 h-1.5 rounded-full" style="width: 60%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-slate-400"><span>Vendor Risk:</span><span class="text-sky-400 font-bold">50%</span></div>
+                                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-1"><div class="bg-sky-400 h-1.5 rounded-full" style="width: 50%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Practice Q&A Interface -->
+                    <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4 lg:col-span-2">
+                        <h2 class="text-base font-bold text-slate-200">🎙️ Practice Rehearsal Q&A</h2>
+                        <div class="bg-slate-900 p-4 rounded-lg border border-slate-800 space-y-2">
+                            <span class="text-xs font-bold text-sky-400">[ISO 27001 A.8.24 / SOC 2 CC6.6] Question Q-TECH-01</span>
+                            <p id="practiceQuestionText" class="text-sm font-semibold text-slate-200">Marcus Vance noticed unencrypted RDS manual snapshots flagged in 2023 and 2024. How do you verify 100% KMS encryption compliance for AWS CloudTrail log #8839?</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-400">Your Answer & Evidence Proof:</label>
+                            <textarea id="practiceAnswerInput" rows="3" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-sky-500" placeholder="Provide answer and reference evidence files..."></textarea>
+                        </div>
+
+                        <button onclick="submitPracticeAnswer()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition">
+                            Submit for Auditor Scoring
+                        </button>
+
+                        <div id="practiceFeedbackBox" class="hidden bg-slate-900/90 p-4 rounded-lg border border-sky-500/40 text-xs space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-emerald-400" id="feedbackVerdict">PASS</span>
+                                <span class="font-mono text-sky-400 font-bold" id="feedbackScore">Score: 85/100</span>
+                            </div>
+                            <p id="feedbackText" class="text-slate-300">Response supported by verifiable evidence.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 4: HINDSIGHT MEMORY INSPECTOR -->
+            <div id="screen4" class="hidden space-y-6">
+                <!-- Conflict Resolution Drawer Header -->
+                <div class="bg-darkCard border border-amber-500/40 rounded-xl p-5 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-base font-bold text-amber-400 flex items-center gap-2">
+                            ⚠️ Hindsight Conflict Resolution Drawer
+                        </h2>
+                        <span class="bg-amber-900/40 text-amber-300 text-[10px] px-2.5 py-1 rounded font-bold border border-amber-700/50">Active Memory Conflict</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-2">
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                            <span class="font-bold text-sky-400">Source A: POL-101 v3.md (Jan 10, 2025)</span>
+                            <p class="text-slate-300 mt-1">"100% Encryption Mandatory: All database instances, automated backups, and manual snapshots MUST BE ENCRYPTED at rest."</p>
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-lg border border-slate-800">
+                            <span class="font-bold text-rose-400">Source B: AWS CloudTrail Log #8839 (Mar 14, 2025)</span>
+                            <p class="text-slate-300 mt-1">"CreateDBSnapshot call executed for acme-prod-db-manual-snap-20250314 with encrypted=false."</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 italic border-t border-slate-800 pt-2">Agent Conflict Analysis: POL-101 v3 establishes the binding legal baseline. CloudTrail #8839 represents a confirmed policy breach event (AUD-308).</p>
+                </div>
+
+                <!-- Live Memory Inspector Feed -->
+                <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-4">
+                    <h2 class="text-base font-bold text-slate-200">🔍 Live Hindsight Recalled Memories Feed</h2>
+                    <div id="inspectorMemoriesList" class="space-y-3 text-xs">
+                        <div class="bg-slate-900/70 p-3 rounded-lg border border-slate-800 flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-sky-400">POL-101_v3.md</span>
+                                    <span class="text-slate-500">• 2025-01-10 • Relevance: 0.98</span>
+                                </div>
+                                <p class="text-slate-300">100% Encryption Mandatory: All database instances, automated backups, and manual snapshots MUST BE ENCRYPTED at rest.</p>
+                            </div>
+                            <span class="bg-emerald-900/40 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-bold border border-emerald-700/50">🟢 Verified</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- CLIENT SCRIPT -->
+    <script>
+        let currentTenant = 'tenant-acme-audit';
+
+        function switchScreen(screenNum) {
+            [1,2,3,4].forEach(num => {
+                document.getElementById(`screen${num}`).classList.add('hidden');
+                document.getElementById(`tabScreen${num}`).classList.remove('tab-active');
+                document.getElementById(`tabScreen${num}`).classList.add('text-slate-400');
+            });
+
+            document.getElementById(`screen${screenNum}`).classList.remove('hidden');
+            document.getElementById(`tabScreen${screenNum}`).classList.add('tab-active');
+            document.getElementById(`tabScreen${screenNum}`).classList.remove('text-slate-400');
+        }
+
+        function handleTenantChange() {
+            currentTenant = document.getElementById('tenantSelect').value;
+            fetchDashboardData();
+        }
+
+        function handleToggleChange() {
+            const isChecked = document.getElementById('memoryToggleInput').checked;
+            document.getElementById('toggleLabel').innerText = isChecked ? 'ON' : 'OFF';
+            document.getElementById('toggleLabel').className = isChecked ? 'text-sky-400 font-bold' : 'text-slate-500 font-bold';
+        }
+
+        function handleDateFilterChange() {
+            const dateVal = document.getElementById('dateFilterInput').value;
+            fetchDashboardData();
+        }
+
+        async function fetchDashboardData() {
+            try {
+                // Readiness score query
+                const resReadiness = await fetch(`/api/readiness?tenant_bank_id=${currentTenant}`);
+                const dataReadiness = await resReadiness.json();
+                if (dataReadiness.success) {
+                    const r = dataReadiness.readiness;
+                    document.getElementById('readinessScoreVal').innerText = r.readiness_score;
+                    document.getElementById('scoreEvidence').innerText = r.breakdown.evidence_completeness.score;
+                    document.getElementById('scoreRemediation').innerText = r.breakdown.finding_remediation_status.score;
+                    document.getElementById('scorePrediction').innerText = r.breakdown.auditor_prediction_accuracy.score;
+                    document.getElementById('scoreMock').innerText = r.breakdown.mock_audit_performance.score;
+                    document.getElementById('scoreRisk').innerText = r.breakdown.recurring_risk_resolution.score;
+                }
+
+                // Approvals queue query
+                const resApprovals = await fetch(`/api/approvals?tenant_bank_id=${currentTenant}`);
+                const dataApprovals = await resApprovals.json();
+                if (dataApprovals.success) {
+                    const listContainer = document.getElementById('approvalsList');
+                    const items = dataApprovals.approvals_queue || dataApprovals.approvals || [];
+                    if (items.length === 0) {
+                        listContainer.innerHTML = `<div class="bg-slate-900/80 p-4 rounded-lg border border-slate-800 text-xs text-slate-400">No pending approvals in queue for active tenant.</div>`;
+                    } else {
+                        listContainer.innerHTML = items.map(item => `
+                            <div class="bg-slate-900/80 p-4 rounded-lg border ${item.status === 'PENDING_HUMAN_APPROVAL' ? 'border-amber-500/30' : 'border-slate-800'} flex flex-wrap items-center justify-between gap-4">
+                                <div class="space-y-1">
+                                    <span class="text-xs font-bold text-amber-400">${item.approval_id} • ${item.risk_level} Risk Action</span>
+                                    <h3 class="text-sm font-bold text-slate-100">${item.action_title}</h3>
+                                    <p class="text-xs text-slate-300">Proposed Action: ${item.proposed_action}</p>
+                                    <span class="text-[10px] font-mono text-slate-400">Status: ${item.status}</span>
+                                </div>
+                                ${item.status === 'PENDING_HUMAN_APPROVAL' ? `
+                                <div class="flex items-center gap-2">
+                                    <button onclick="handleApproval('${item.approval_id}', 'APPROVE')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2 rounded transition">
+                                        ✓ Approve
+                                    </button>
+                                    <button onclick="handleApproval('${item.approval_id}', 'REJECT')" class="bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs px-4 py-2 rounded transition">
+                                        ✕ Reject
+                                    </button>
+                                </div>` : `<span class="text-xs font-bold text-emerald-400 px-3 py-1 bg-emerald-950/40 rounded border border-emerald-800">${item.status}</span>`}
+                            </div>
+                        `).join('');
+                    }
+                }
+
+                // Event feed query
+                const resEvents = await fetch(`/api/event-feed?tenant_bank_id=${currentTenant}`);
+                const dataEvents = await resEvents.json();
+                if (dataEvents.success && dataEvents.events.length > 0) {
+                    const eventContainer = document.getElementById('eventFeedList');
+                    eventContainer.innerHTML = dataEvents.events.map(evt => `
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-800 flex justify-between items-start">
+                            <div>
+                                <span class="font-bold text-sky-400">[${evt.source}]</span>
+                                <p class="text-slate-300 mt-1">${evt.summary}</p>
+                            </div>
+                            <span class="${evt.risk_level === 'HIGH' ? 'bg-rose-900/40 text-rose-300 border-rose-700/50' : 'bg-sky-900/40 text-sky-300 border-sky-700/50'} text-[10px] px-2 py-0.5 rounded font-bold border">${evt.risk_level} RISK</span>
+                        </div>
+                    `).join('');
+                }
+
+                // Memory inspector query
+                const resInspector = await fetch(`/api/memory/inspector?tenant_bank_id=${currentTenant}`);
+                const dataInspector = await resInspector.json();
+                if (dataInspector.success && dataInspector.data.memories) {
+                    const inspectorContainer = document.getElementById('inspectorMemoriesList');
+                    inspectorContainer.innerHTML = dataInspector.data.memories.map(mem => `
+                        <div class="bg-slate-900/70 p-3 rounded-lg border border-slate-800 flex justify-between items-start">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="font-bold text-sky-400">${mem.source}</span>
+                                    <span class="text-slate-500">• ${mem.date} • Relevance: ${mem.relevance_score}</span>
+                                </div>
+                                <p class="text-slate-300">${mem.content}</p>
+                            </div>
+                            <span class="bg-emerald-900/40 text-emerald-300 text-[10px] px-2 py-0.5 rounded font-bold border border-emerald-700/50">${mem.grounding_badge}</span>
+                        </div>
+                    `).join('');
+                }
+
+            } catch(e) { console.warn('Fetch dashboard error:', e); }
+        }
+
+        async function triggerDemoAction(triggerKey) {
+            try {
+                document.getElementById('pulseIcon').innerText = '🔵';
+                document.getElementById('pulseText').innerText = 'Recalling...';
+                
+                const res = await fetch(`/api/demo/trigger/${triggerKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tenant_bank_id: currentTenant })
+                });
+                const data = await res.json();
+                
+                setTimeout(() => {
+                    document.getElementById('pulseIcon').innerText = '🟢';
+                    document.getElementById('pulseText').innerText = 'Fact Retrieved';
+                    fetchDashboardData();
+                }, 500);
+            } catch(e) {
+                document.getElementById('pulseIcon').innerText = '⚪';
+                document.getElementById('pulseText').innerText = 'Standby';
+            }
+        }
+
+        async function handleApproval(approvalId, decision) {
+            const endpoint = decision === 'APPROVE' ? '/api/approve' : '/api/reject';
+            await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenant_bank_id: currentTenant, approval_id: approvalId, comments: 'Handled via Mission Control UI' })
+            });
+            fetchDashboardData();
+        }
+
+        async function submitPracticeAnswer() {
+            const ans = document.getElementById('practiceAnswerInput').value;
+            const res = await fetch('/api/audit/rehearsal/evaluate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tenant_bank_id: currentTenant, question_id: 'Q-TECH-01', user_answer: ans, evidence_attached: ans })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const box = document.getElementById('practiceFeedbackBox');
+                box.classList.remove('hidden');
+                document.getElementById('feedbackVerdict').innerText = data.evaluation.verdict;
+                document.getElementById('feedbackScore').innerText = `Score: ${data.evaluation.rehearsal_score}/100`;
+                document.getElementById('feedbackText').innerText = data.evaluation.auditor_feedback;
+            }
+        }
+
+        function triggerIngestDemo() {
+            alert('File Dropzone Triggered: Ingested document into active tenant bank: ' + currentTenant);
+        }
+
+        function exportAuditEvidencePackage() {
+            window.location.href = `/api/export/evidence-package?tenant_bank_id=${currentTenant}`;
+        }
+
+        // Initialize dashboard
+        fetchDashboardData();
+    </script>
+</body>
+</html>

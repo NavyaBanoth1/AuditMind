@@ -1,0 +1,44 @@
+{
+  "name": "auditmind-compliance-plugin",
+  "version": "1.0.0",
+  "description": "AuditMind Hindsight-powered compliance and audit agent plugin for OpenClaw.",
+  "main": "adapter.js",
+  "author": "AuditMind Lead Architecture Team",
+  "license": "MIT",
+  "openclaw": {
+    "specVersion": "1.0",
+    "capabilities": [
+      "memory_retain",
+      "memory_recall",
+      "memory_reflect",
+      "event_ingress",
+      "multi_framework_mapping"
+    ],
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "tenant_bank_id": {
+          "type": "string",
+          "default": "tenant-acme-audit",
+          "description": "Hindsight tenant bank scope ID"
+        },
+        "hindsight_api_url": {
+          "type": "string",
+          "default": "http://localhost:8080",
+          "description": "Hindsight vector memory engine base URL"
+        }
+      },
+      "required": ["tenant_bank_id"]
+    },
+    "actions": [
+      {
+        "name": "handleIngressEvent",
+        "description": "Ingest and normalize raw webhook events (AWS CloudTrail, Jira, GitHub) into Hindsight long-term memory."
+      },
+      {
+        "name": "queryComplianceMemory",
+        "description": "Query Hindsight long-term memory for active compliance policies, past findings, and cross-framework control mappings."
+      }
+    ]
+  }
+}

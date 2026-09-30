@@ -1,0 +1,52 @@
+{
+  "company_profile": {
+    "name": "Acme Cloud Technologies",
+    "industry": "Enterprise B2B SaaS",
+    "target_certifications": ["ISO/IEC 27001:2022", "SOC 2 Type II"],
+    "applicable_regulations": ["DPDP Act (India - Demo context)", "GDPR"]
+  },
+  "auditor_profile": {
+    "name": "Marcus Vance",
+    "firm": "Apex Cyber Assurance Group",
+    "title": "Lead ISO 27001 & SOC 2 Lead Auditor",
+    "years_auditing_acme": 3,
+    "audit_style": "Strict technical verification with focus on operational habits",
+    "known_habits": [
+      "Always requests raw access review logs for active engineering staff and terminated employees.",
+      "Thoroughly inspects vendor risk assessment matrices and third-party SOC 2 reports.",
+      "Performs deep technical sampling on AWS RDS manual and automated snapshots to verify backup encryption."
+    ]
+  },
+  "audits": [
+    {
+      "audit_id": "AUD-2023-SOC2",
+      "year": 2023,
+      "audit_type": "SOC 2 Type II Annual Audit",
+      "auditor": "Marcus Vance",
+      "period": "Jan 1, 2023 - Dec 31, 2023",
+      "focus_areas": ["Access Control (CC6.1)", "Data Protection & Encryption (CC6.6)", "Vendor Risk Management (CC9.2)"],
+      "summary": "Overall adequate control environment, but flagged unencrypted RDS snapshots and delayed quarterly access reviews.",
+      "findings_generated": ["AUD-101", "AUD-102", "AUD-103", "AUD-104", "AUD-105", "AUD-106", "AUD-107", "AUD-108", "AUD-109", "AUD-110"]
+    },
+    {
+      "audit_id": "AUD-2024-ISO27001",
+      "year": 2024,
+      "audit_type": "ISO 27001 Surveillance Audit",
+      "auditor": "Marcus Vance",
+      "period": "Jan 1, 2024 - Dec 31, 2024",
+      "focus_areas": ["A.5.15 Access Control", "A.8.10 Data Deletion", "A.8.24 Use of Cryptography"],
+      "summary": "Noted recurring issue with unencrypted database snapshots in staging environments and incomplete vendor assessments.",
+      "findings_generated": ["AUD-201", "AUD-202", "AUD-203", "AUD-204", "AUD-205", "AUD-206", "AUD-207", "AUD-208", "AUD-209", "AUD-210"]
+    },
+    {
+      "audit_id": "AUD-2025-SOC2-ISO",
+      "year": 2025,
+      "audit_type": "Combined ISO 27001 & SOC 2 Re-certification",
+      "auditor": "Marcus Vance",
+      "period": "Jan 1, 2025 - Dec 31, 2025",
+      "focus_areas": ["IAM Least Privilege", "Data Retention & Disposal", "Backup Encryption & Resilience"],
+      "summary": "High risk finding issued for overdue privileged IAM access review (#AUD-402) and open unencrypted snapshot risks.",
+      "findings_generated": ["AUD-301", "AUD-302", "AUD-303", "AUD-304", "AUD-305", "AUD-306", "AUD-307", "AUD-308", "AUD-309", "AUD-310", "AUD-402"]
+    }
+  ]
+}
